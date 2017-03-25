@@ -39,13 +39,22 @@ restService.post('/echo', function (req, res) {
 
         case "BuyProduct":
             var productInfo = req.body.result.parameters.brand + '||' + req.body.result.parameters.number;
+            var amount = req.body.result.parameters.number;
+            return pay(req.body.result.parameters.brand, amount)
+                .then(function (response) {
+                    var data = JSON.parse(response)
+                    if (data) {
+                        return res.json({
+                            speech: "£ " + amount + " was spent from your RBS account \n\nPayment successful!!",
+                            source: 'webhook-echo-one'
+                        });
+                    } else {
+                        return res.json({
+                            speech: "Sorry, Your transaction is failed. Please try again.",
+                            source: 'webhook-echo-one'
+                        });
+                    }
 
-            return pay(req.body.result.parameters.brand, req.body.result.parameters.number)
-                .then(function (data) {
-                    return res.json({
-                        speech: "Payment successful",
-                        source: 'webhook-echo-one'
-                    });
                 });
             break;
 
@@ -58,7 +67,7 @@ restService.post('/echo', function (req, res) {
                     speech: "Here is your order history",
                     source: 'webhook-echo-one',
                     // "messages": thumbnails(JSON.parse(response).products)
-                    "message": thumbnails()
+                    "messages": thumbnails()
                 });
             });
             break;
@@ -153,133 +162,92 @@ restService.get('/', function (req, res) {
 function thumbnails() {
     return [
         {
-            "type": 0,
-            "speech": ""
+            "title": "Classic T-Shirt Collection",
+            "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
+            "subtitle": "See all our colors",
+            "default_action": {
+                "type": "web_url",
+                "url": "https://peterssendreceiveapp.ngrok.io/shop_collection",
+                "messenger_extensions": true,
+                "webview_height_ratio": "tall",
+                "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+            },
+            "buttons": [
+                {
+                    "title": "View",
+                    "type": "web_url",
+                    "url": "https://peterssendreceiveapp.ngrok.io/collection",
+                    "messenger_extensions": true,
+                    "webview_height_ratio": "tall",
+                    "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+                }
+            ]
         },
         {
-            "payload": {
-                "facebook": {
-                    "attachment": {
-                        "type": "template",
-                        "payload": {
-                            "template_type": "list",
-                            "elements": [
-                                {
-                                    "title": "Classic T-Shirt Collection",
-                                    "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
-                                    "subtitle": "See all our colors",
-                                    "default_action": {
-                                        "type": "web_url",
-                                        "url": "https://peterssendreceiveapp.ngrok.io/shop_collection",
-                                        "messenger_extensions": true,
-                                        "webview_height_ratio": "tall",
-                                        "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                    },
-                                    "buttons": [
-                                        {
-                                            "title": "View",
-                                            "type": "web_url",
-                                            "url": "https://peterssendreceiveapp.ngrok.io/collection",
-                                            "messenger_extensions": true,
-                                            "webview_height_ratio": "tall",
-                                            "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "title": "Classic White T-Shirt",
-                                    "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
-                                    "subtitle": "100% Cotton, 200% Comfortable",
-                                    "default_action": {
-                                        "type": "web_url",
-                                        "url": "https://peterssendreceiveapp.ngrok.io/view?item=100",
-                                        "messenger_extensions": true,
-                                        "webview_height_ratio": "tall",
-                                        "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                    },
-                                    "buttons": [
-                                        {
-                                            "title": "Shop Now",
-                                            "type": "web_url",
-                                            "url": "https://peterssendreceiveapp.ngrok.io/shop?item=100",
-                                            "messenger_extensions": true,
-                                            "webview_height_ratio": "tall",
-                                            "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "title": "Classic Blue T-Shirt",
-                                    "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
-                                    "subtitle": "100% Cotton, 200% Comfortable",
-                                    "default_action": {
-                                        "type": "web_url",
-                                        "url": "https://peterssendreceiveapp.ngrok.io/view?item=101",
-                                        "messenger_extensions": true,
-                                        "webview_height_ratio": "tall",
-                                        "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                    },
-                                    "buttons": [
-                                        {
-                                            "title": "Shop Now",
-                                            "type": "web_url",
-                                            "url": "https://peterssendreceiveapp.ngrok.io/shop?item=101",
-                                            "messenger_extensions": true,
-                                            "webview_height_ratio": "tall",
-                                            "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "title": "Classic Black T-Shirt",
-                                    "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
-                                    "subtitle": "100% Cotton, 200% Comfortable",
-                                    "default_action": {
-                                        "type": "web_url",
-                                        "url": "https://peterssendreceiveapp.ngrok.io/view?item=102",
-                                        "messenger_extensions": true,
-                                        "webview_height_ratio": "tall",
-                                        "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                    },
-                                    "buttons": [
-                                        {
-                                            "title": "Shop Now",
-                                            "type": "web_url",
-                                            "url": "https://peterssendreceiveapp.ngrok.io/shop?item=102",
-                                            "messenger_extensions": true,
-                                            "webview_height_ratio": "tall",
-                                            "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
-                                        }
-                                    ]
-                                }
-                            ],
-                            "buttons": [
-                                {
-                                    "title": "View More",
-                                    "type": "postback",
-                                    "payload": "payload"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "kik": {
-                    "type": "",
-                    "body": ""
-                },
-                "slack": {
-                    "text": "",
-                    "attachments": []
-                },
-                "telegram": {
-                    "text": ""
-                },
-                "viber": {
-                    "type": "text",
-                    "text": ""
-                }
+            "title": "Classic White T-Shirt",
+            "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
+            "subtitle": "100% Cotton, 200% Comfortable",
+            "default_action": {
+                "type": "web_url",
+                "url": "https://peterssendreceiveapp.ngrok.io/view?item=100",
+                "messenger_extensions": true,
+                "webview_height_ratio": "tall",
+                "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
             },
-            "type": 4
+            "buttons": [
+                {
+                    "title": "Shop Now",
+                    "type": "web_url",
+                    "url": "https://peterssendreceiveapp.ngrok.io/shop?item=100",
+                    "messenger_extensions": true,
+                    "webview_height_ratio": "tall",
+                    "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+                }
+            ]
+        },
+        {
+            "title": "Classic Blue T-Shirt",
+            "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
+            "subtitle": "100% Cotton, 200% Comfortable",
+            "default_action": {
+                "type": "web_url",
+                "url": "https://peterssendreceiveapp.ngrok.io/view?item=101",
+                "messenger_extensions": true,
+                "webview_height_ratio": "tall",
+                "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+            },
+            "buttons": [
+                {
+                    "title": "Shop Now",
+                    "type": "web_url",
+                    "url": "https://peterssendreceiveapp.ngrok.io/shop?item=101",
+                    "messenger_extensions": true,
+                    "webview_height_ratio": "tall",
+                    "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+                }
+            ]
+        },
+        {
+            "title": "Classic Black T-Shirt",
+            "image_url": "http://asset1.marksandspencer.com/is/image/mands/SD_01_T38_7237_KC_X_EC_0?$PRODVIEWER_SUB$",
+            "subtitle": "100% Cotton, 200% Comfortable",
+            "default_action": {
+                "type": "web_url",
+                "url": "https://peterssendreceiveapp.ngrok.io/view?item=102",
+                "messenger_extensions": true,
+                "webview_height_ratio": "tall",
+                "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+            },
+            "buttons": [
+                {
+                    "title": "Shop Now",
+                    "type": "web_url",
+                    "url": "https://peterssendreceiveapp.ngrok.io/shop?item=102",
+                    "messenger_extensions": true,
+                    "webview_height_ratio": "tall",
+                    "fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+                }
+            ]
         }
     ]
 }
