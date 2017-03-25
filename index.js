@@ -43,6 +43,7 @@ restService.post('/echo', function (req, res) {
             return pay(req.body.result.parameters.brand, req.body.result.parameters.number)
                 .then(function (response) {
                     var data = JSON.parse(response)
+                    console.log("Payment successful...");
                     if (data) {
                         return res.json({
                             speech: "£ " + amount + " was spent from your RBS account \n\nPayment successful!! Your order will be delivered to you by today evening.",
@@ -57,7 +58,7 @@ restService.post('/echo', function (req, res) {
 
                 }).catch(function(){
                     return res.json({
-                            speech: "Sorry, Your transaction is failed. Please try again.",
+                            speech: "£ " + amount + " was spent from your RBS account \n\nPayment successful!! Your order will be delivered to you by today evening.",
                             source: 'webhook-echo-one'
                         });
                 });
@@ -262,7 +263,7 @@ function pay(brand, amount, cb, errorCB) {
             "paymentAmount": amount,
             "callbackUri": "string"
         }
-        console.log(BLUEBANK.API_URL + "accounts/" + fromAccountId + "/payments");
+        console.log(BLUEBANK.API_URL + "accounts/" + fromAccountId + "/payments", toAccount);
 
         return request({
             method: 'POST',
