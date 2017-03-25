@@ -20,11 +20,20 @@ restService.post('/echo', function (req, res) {
             var productType = req.body.result.parameters.color + req.body.result.parameters.dress + req.body.result.parameters.number;
 
             return request('https://blitzapimonitor.herokuapp.com/blitz/getProduct/' + productType).then(function (response) {
-                return res.json({
-                    speech: "You may like",
-                    source: 'webhook-echo-one',
-                    "messages": fnProductList(JSON.parse(response).products)
-                });
+                var data = JSON.parse(response).products;
+                if (data) {
+                    return res.json({
+                        speech: "You may like",
+                        source: 'webhook-echo-one',
+                        "messages": fnProductList(data)
+                    });
+                } else {
+                    return res.json({
+                        speech: "Sorry, We tried our best, but we couldn't find any products for you.",
+                        source: 'webhook-echo-one'
+                    });
+                }
+
             });
             break;
 
