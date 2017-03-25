@@ -135,6 +135,10 @@ restService.post('/fb-test', function (req, res) {
     });
 });
 
+restService.get('/', function (req, res) {
+    res.send('hello world');
+})
+
 
 function fnProductList(productData) {
     /*
@@ -189,74 +193,77 @@ function fnProductList(productData) {
  */
 
 var BLUEBANK = {
-	API_URL: "https://bluebank.azure-api.net/api/v0.6.3/",
-	API_KEY: "7c6877be3d254857a7da63e2302a1e12",
-	TOKEN_URL: "https://cloudlevel.io/token",
-	SAMPLE_CUST_ID: "58493b552b9b99915933c998",
-	MERCHANT: { // CURRENT 
-		"sortCode": "839999",
-		"accountType": "Standard Current Account",
-		"accountFriendlyName": "Current Account",
-		"accountCurrency": "GBP",
-		"customerId": "58493b552b9b99915933c998",
-		"accountNumber": "10000343",
-		"id": "58493b552b9b99915933c999"
-	},
-	CUSTOMER: { // SAVINGS
-		"sortCode": "839999",
-		"accountType": "90-day Savings Account",
-		"accountFriendlyName": "Savings Account",
-		"accountCurrency": "GBP",
-		"customerId": "58493b552b9b99915933c998",
-		"accountNumber": "50000344",
-		"id": "58493b562b9b99915933c99a"
-	}
+    API_URL: "https://bluebank.azure-api.net/api/v0.6.3/",
+    API_KEY: "7c6877be3d254857a7da63e2302a1e12",
+    TOKEN_URL: "https://cloudlevel.io/token",
+    SAMPLE_CUST_ID: "58493b552b9b99915933c998",
+    MERCHANT: { // CURRENT 
+        "sortCode": "839999",
+        "accountType": "Standard Current Account",
+        "accountFriendlyName": "Current Account",
+        "accountCurrency": "GBP",
+        "customerId": "58493b552b9b99915933c998",
+        "accountNumber": "10000343",
+        "id": "58493b552b9b99915933c999"
+    },
+    CUSTOMER: { // SAVINGS
+        "sortCode": "839999",
+        "accountType": "90-day Savings Account",
+        "accountFriendlyName": "Savings Account",
+        "accountCurrency": "GBP",
+        "customerId": "58493b552b9b99915933c998",
+        "accountNumber": "50000344",
+        "id": "58493b562b9b99915933c99a"
+    }
 }
 
 
 var BLUEBANK_HEADERS = {
-	"Ocp-Apim-Subscription-Key": BLUEBANK.API_KEY,
-	"bearer": ""
-}
-
-function getBearerToken() {
-	return request({
-		url: BLUEBANK.TOKEN_URL,
-		headers: BLUEBANK_HEADERS
-	});
-}
-
-function makePayment(fromAccountId, toAccount) {
-	return request.post({
-		url: BLUEBANK.API_URL + "accounts/" + fromAccountId + "/payments",
-		headers: BLUEBANK_HEADERS,
-		postData: {
-			mimeType: 'application/json',
-			params: toAccount
-		}
-	});
+    "Ocp-Apim-Subscription-Key": BLUEBANK.API_KEY,
+    "bearer": ""
 }
 
 function pay(brand, amount, cb, errorCB) {
-	return getBearerToken()
-	.then(function(data){
-		BLUEBANK_HEADERS.bearer = data.bearer;
+    console.log("Requesting bank...");
+    return request({
+        uri: BLUEBANK.TOKEN_URL,
+        headers: BLUEBANK_HEADERS
+    }).then(function (data) {
+        BLUEBANK_HEADERS.bearer = JSON.parse(data).bearer;
+        console.log("got bearer", BLUEBANK_HEADERS);
+        var fromAccountId = BLUEBANK.CUSTOMER.id;
+        var toAccount = {
+            "toAccountNumber": BLUEBANK.MERCHANT.accountNumber,
+            "toSortCode": BLUEBANK.MERCHANT.sortCode,
+            "paymentReference": brand,
+            "paymentAmount": amount,
+            "callbackUri": "string"
+        }
+        console.log(BLUEBANK.API_URL + "accounts/" + fromAccountId + "/payments");
 
-		var fromAccountId = BLUEBANK.CUSTOMER.id;
-		var toAccount = {
-			"toAccountNumber": BLUEBANK.MERCHANT.accountNumber,
-			"toSortCode": BLUEBANK.MERCHANT.sortCode,
-			"paymentReference": brand,
-			"paymentAmount": amount,
-			"callbackUri": "string"
-		}
-		return makePayment(fromAccountId, toAccount )
-	})
+        return request({
+            method: 'POST',
+            uri: BLUEBANK.API_URL + "accounts/" + fromAccountId + "/payments",
+            headers: BLUEBANK_HEADERS,
+            json: true,
+            body: toAccount
+        });
+    });
 }
-
+restService.get('/pay', function (req, res) {
+    console.log("pay...");
+    return pay("Primark", 5)
+        .then(function (data) {
+            return res.json({
+                speech: "Payment successful",
+                source: 'webhook-echo-one'
+            });
+        });
+})
 
 /************** Banking api ends here */
 
-restService.listen((process.env.PORT || 8000), function () {
-    console.log("Server up and listening");
+var port = (process.env.PORT || 8000);
+restService.listen(port, function () {
+    console.log("Server up and listening @", port);
 });
