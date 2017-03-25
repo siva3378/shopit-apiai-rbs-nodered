@@ -40,7 +40,7 @@ restService.post('/echo', function (req, res) {
         case "BuyProduct":
             var productInfo = req.body.result.parameters.brand + '||' + req.body.result.parameters.number;
             var amount = req.body.result.parameters.number;
-            return pay(req.body.result.parameters.brand, amount)
+            return pay(req.body.result.parameters.brand, req.body.result.parameters.number)
                 .then(function (response) {
                     var data = JSON.parse(response)
                     if (data) {
@@ -55,6 +55,11 @@ restService.post('/echo', function (req, res) {
                         });
                     }
 
+                }).catch(function(){
+                    return res.json({
+                            speech: "Sorry, Your transaction is failed. Please try again.",
+                            source: 'webhook-echo-one'
+                        });
                 });
             break;
 
