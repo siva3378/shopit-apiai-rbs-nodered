@@ -45,7 +45,7 @@ restService.post('/echo', function (req, res) {
                     var data = JSON.parse(response)
                     if (data) {
                         return res.json({
-                            speech: "£ " + amount + " was spent from your RBS account \n\nPayment successful!!",
+                            speech: "£ " + amount + " was spent from your RBS account \n\nPayment successful!! Your order will be delivered to you by today evening.",
                             source: 'webhook-echo-one'
                         });
                     } else {
