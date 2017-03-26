@@ -218,7 +218,7 @@ function fnProductList(productData) {
 
 var BLUEBANK = {
     API_URL: "https://bluebank.azure-api.net/api/v0.6.3/",
-    API_KEY: "7c6877be3d254857a7da63e2302a1e12",
+    API_KEY: "<Ocp-Apim-Subscription-Key>", // enter your Ocp-Apim-Subscription-Key
     TOKEN_URL: "https://cloudlevel.io/token",
     SAMPLE_CUST_ID: "58493b552b9b99915933c998",
     MERCHANT: { // CURRENT 
